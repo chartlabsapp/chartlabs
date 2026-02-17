@@ -1,0 +1,224 @@
+.workspace-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.workspace-nav {
+    padding: var(--space-md) var(--space-xl) 0 var(--space-xl);
+}
+
+.workspace-container {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.workspace-chart-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-width: 0;
+}
+
+.workspace-chart-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md) var(--space-lg);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+
+
+.workspace-viewer {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: #0d1117;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-xl);
+}
+
+.viewer-image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.viewer-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border);
+}
+
+.viewer-loading {
+    color: var(--text-tertiary);
+    font-size: 14px;
+}
+
+.workspace-details-panel {
+    width: 360px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+}
+
+.workspace-details-scroll {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.rr-display {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 var(--space-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--accent);
+    font-size: 14px;
+}
+
+.tag-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.tag-picker .chip {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+    font-size: 11px;
+    padding: 2px 8px;
+}
+
+.tag-picker .chip:hover {
+    border-color: var(--accent);
+}
+
+.tag-picker .chip-selected {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.workspace-actions {
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    border-top: 1px solid var(--border);
+}
+
+.workspace-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    gap: var(--space-md);
+    color: var(--text-secondary);
+}
+
+.workspace-empty h3 {
+    color: var(--text-primary);
+}
+
+/* Secondary Images */
+.secondary-images-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: var(--space-xs);
+    margin-top: var(--space-sm);
+}
+
+.secondary-image-item {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    background: var(--bg-primary);
+    transition: all var(--transition-fast);
+}
+
+.secondary-image-item.active {
+    border-color: var(--accent);
+}
+
+.secondary-image-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.secondary-image-delete {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    z-index: 2;
+}
+
+.secondary-image-item:hover .secondary-image-delete {
+    display: flex;
+}
+
+.secondary-image-delete:hover {
+    background: var(--danger);
+}
+
+.secondary-image-item .image-label {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 8px;
+    text-align: center;
+    padding: 1px 0;
+}
+
+.secondary-image-add {
+    aspect-ratio: 1;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.secondary-image-add:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}

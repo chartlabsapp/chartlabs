@@ -1,0 +1,363 @@
+.timer-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: var(--space-xl);
+    gap: var(--space-md);
+}
+
+.timer-nav {
+    margin-bottom: var(--space-xs);
+}
+
+.timer-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+    overflow-y: auto;
+}
+
+.timer-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-xl);
+    padding: var(--space-3xl) 0;
+}
+
+.timer-circle {
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 3px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color var(--transition-normal);
+}
+
+.timer-circle.running {
+    border-color: var(--accent);
+    box-shadow: 0 0 40px var(--accent-glow);
+    animation: pulse 2s infinite;
+}
+
+.timer-display {
+    font-size: 48px;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: 2px;
+}
+
+.timer-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.timer-play {
+    min-width: 140px;
+}
+
+.timer-context {
+    display: flex;
+    gap: var(--space-lg);
+    align-items: flex-end;
+}
+
+.timer-context .form-group {
+    min-width: 160px;
+}
+
+.timer-sessions {
+    flex-shrink: 0;
+}
+
+.timer-sidebar {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+    overflow-y: auto;
+}
+
+.timer-summary-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.timer-breakdown {
+    padding: var(--space-lg);
+}
+
+.timer-breakdown .card-title {
+    margin-bottom: var(--space-lg);
+}
+
+.breakdown-bars {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.breakdown-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 60px;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.breakdown-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.breakdown-bar-track {
+    height: 8px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.breakdown-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--radius-full);
+    transition: width var(--transition-normal);
+}
+
+.breakdown-bar.bar-green {
+    background: var(--green);
+}
+
+.breakdown-value {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: right;
+}
+
+.breakdown-project-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-bottom: var(--space-md);
+    border-bottom: 1px solid var(--border);
+}
+
+.breakdown-project-group:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.breakdown-row.main-row .breakdown-label {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.breakdown-row.theme-row {
+    margin-left: var(--space-lg);
+    opacity: 0.8;
+}
+
+.breakdown-bar.theme-bar {
+    background: var(--text-tertiary);
+    opacity: 0.5;
+}
+
+/* ── Session Row Editing ── */
+
+.session-row .session-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+    opacity: 0;
+    transition: opacity var(--transition-fast, 150ms);
+}
+
+.session-row:hover .session-actions,
+.session-row .session-actions:focus-within {
+    opacity: 1;
+}
+
+/* Always show actions when in confirm-delete or editing state */
+.session-row.editing .session-actions,
+.session-row .session-actions:has(.btn-icon-danger),
+.session-row .session-actions:has(.btn-icon-success) {
+    opacity: 1;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm, 4px);
+    cursor: pointer;
+    transition: background var(--transition-fast, 150ms), color var(--transition-fast, 150ms);
+}
+
+.btn-icon-ghost {
+    background: transparent;
+    color: var(--text-tertiary);
+}
+
+.btn-icon-ghost:hover {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.06));
+    color: var(--text-primary);
+}
+
+.btn-icon-success {
+    background: transparent;
+    color: var(--green, #4ade80);
+}
+
+.btn-icon-success:hover {
+    background: rgba(74, 222, 128, 0.12);
+}
+
+.btn-icon-danger {
+    background: transparent;
+    color: var(--red, #f87171);
+}
+
+.btn-icon-danger:hover {
+    background: rgba(248, 113, 113, 0.12);
+}
+
+.session-row.editing {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.03));
+}
+
+.session-edit-input {
+    width: 80px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 6px;
+}
+
+.session-edit-selects {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.session-edit-selects .select-sm {
+    font-size: 12px;
+    padding: 3px 6px;
+    min-width: 0;
+}
+
+.session-edit-times {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.session-edit-time {
+    width: 100px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 4px 6px;
+}
+
+/* ── Filter Bar (Consistent with Analytics) ── */
+
+.sessions-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.timer-filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.date-preset-chips {
+    display: flex;
+    background: var(--bg-secondary, #1e222d);
+    padding: 2px;
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--border-subtle, #363a45);
+}
+
+.date-chip {
+    padding: 4px 10px;
+    border-radius: var(--radius-sm, 6px);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary, #787b86);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast, 150ms);
+}
+
+.date-chip:hover {
+    color: var(--text-primary, #d1d4dc);
+}
+
+.date-chip.active {
+    background: var(--bg-hover, rgba(255, 255, 255, 0.08));
+    color: var(--text-primary, #d1d4dc);
+}
+
+.filter-select {
+    width: auto !important;
+    min-width: 120px;
+    height: 30px !important;
+    font-size: 11px !important;
+}
+
+.date-custom-range.mini {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-secondary, #1e222d);
+    padding: 2px 8px;
+    border-radius: var(--radius-md, 8px);
+    border: 1px solid var(--border-subtle, #363a45);
+}
+
+.date-custom-range.mini input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary, #d1d4dc);
+    font-size: 11px;
+    font-family: var(--font-mono);
+    padding: 2px 0;
+    width: 90px;
+}
+
+.date-custom-range.mini input::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+
+.session-date {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-primary, #d1d4dc);
+    margin-bottom: 2px;
+}
+
+@media (max-width: 768px) {
+    .timer-filters {
+        width: 100%;
+        margin-top: 12px;
+    }
+}

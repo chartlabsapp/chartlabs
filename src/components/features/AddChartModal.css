@@ -1,0 +1,86 @@
+.add-chart-modal {
+    max-width: 640px;
+    max-height: 90vh;
+}
+
+.paste-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: var(--space-xl);
+    transition: all var(--transition-fast);
+    overflow: hidden;
+}
+
+.paste-area.dragging {
+    border-color: var(--accent);
+    background: var(--accent-light);
+}
+
+.paste-area.has-image {
+    border-style: solid;
+    border-color: var(--border);
+}
+
+.paste-prompt {
+    padding: var(--space-3xl) var(--space-xl);
+    text-align: center;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.paste-prompt strong {
+    color: var(--accent);
+}
+
+.paste-preview {
+    position: relative;
+}
+
+.paste-preview img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    background: var(--bg-primary);
+    display: block;
+}
+
+.paste-clear {
+    position: absolute;
+    top: var(--space-sm);
+    right: var(--space-sm);
+}
+
+.upload-btn {
+    margin-top: var(--space-sm);
+    cursor: pointer;
+}
+
+.add-chart-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.tag-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.tag-picker .chip {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 1px solid transparent;
+}
+
+.tag-picker .chip:hover {
+    border-color: var(--accent);
+}
+
+.tag-picker .chip-selected {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+}

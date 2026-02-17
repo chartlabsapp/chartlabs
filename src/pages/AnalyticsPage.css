@@ -1,0 +1,415 @@
+.analytics-page {
+    padding: var(--space-xl);
+    box-sizing: border-box;
+}
+
+.analytics-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-xl);
+}
+
+.analytics-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.analytics-charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.analytics-chart {
+    padding: var(--space-lg);
+}
+
+.analytics-chart .card-title {
+    margin-bottom: var(--space-lg);
+}
+
+.analytics-wide {
+    margin-bottom: var(--space-lg);
+}
+
+.chart-placeholder {
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+.analytics-tables {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-lg);
+}
+
+.analytics-table-card {
+    padding: var(--space-lg);
+    overflow: auto;
+}
+
+.analytics-table-card .card-title {
+    margin-bottom: var(--space-md);
+}
+
+/* =============================================
+   Time Analytics Section
+   ============================================= */
+
+.time-analytics-section {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--border);
+}
+
+.time-analytics-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.time-analytics-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.time-analytics-title svg {
+    color: var(--accent);
+}
+
+/* --- Date Range Filter Bar --- */
+.date-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.date-preset-chips {
+    display: flex;
+    gap: 4px;
+}
+
+.date-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+}
+
+.date-chip:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.date-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+}
+
+.date-custom-range {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: var(--space-sm);
+}
+
+.date-custom-range input[type="date"] {
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-family: inherit;
+}
+
+.date-custom-range input[type="date"]:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.date-custom-range span {
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+
+/* --- Time Summary Cards --- */
+.time-summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+/* --- Time Charts Grid --- */
+.time-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+
+.time-chart-card {
+    padding: var(--space-lg);
+}
+
+.time-chart-card .card-title {
+    margin-bottom: var(--space-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.time-chart-wide {
+    grid-column: 1 / -1;
+}
+
+/* --- Breakdown Bars (reusable inside analytics) --- */
+.analytics-breakdown-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.analytics-breakdown-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 60px;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.analytics-breakdown-row.sub-row {
+    grid-template-columns: 100px 1fr 60px;
+    padding-left: 16px;
+}
+
+.analytics-breakdown-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sub-row .analytics-breakdown-label {
+    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.analytics-bar-track {
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.analytics-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--accent);
+    transition: width 0.3s ease;
+    min-width: 2px;
+}
+
+.analytics-bar-fill.bar-green {
+    background: #22ab94;
+}
+
+.analytics-bar-fill.bar-orange {
+    background: #ff9800;
+}
+
+.analytics-bar-fill.bar-purple {
+    background: #9c27b0;
+}
+
+.sub-row .analytics-bar-fill {
+    background: var(--accent);
+    opacity: 0.6;
+}
+
+.analytics-breakdown-value {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+}
+
+/* --- Heatmap (GitHub-style) --- */
+.heatmap-container {
+    padding: var(--space-sm) 0;
+    overflow-x: auto;
+}
+
+.heatmap-grid {
+    display: flex;
+    gap: 3px;
+}
+
+.heatmap-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.heatmap-cell {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    background: var(--bg-secondary);
+    transition: background 0.15s ease;
+}
+
+.heatmap-cell[data-level="0"] {
+    background: var(--bg-secondary);
+}
+
+.heatmap-cell[data-level="1"] {
+    background: rgba(41, 98, 255, 0.25);
+}
+
+.heatmap-cell[data-level="2"] {
+    background: rgba(41, 98, 255, 0.5);
+}
+
+.heatmap-cell[data-level="3"] {
+    background: rgba(41, 98, 255, 0.75);
+}
+
+.heatmap-cell[data-level="4"] {
+    background: rgba(41, 98, 255, 1);
+}
+
+.heatmap-cell:hover {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+}
+
+.heatmap-legend-label {
+    margin: 0 4px;
+}
+
+.heatmap-day-labels {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-right: 4px;
+    padding-top: 0;
+}
+
+.heatmap-day-label {
+    height: 14px;
+    font-size: 9px;
+    color: var(--text-tertiary);
+    display: flex;
+    align-items: center;
+}
+
+/* --- Streak Counter --- */
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.streak-fire {
+    font-size: 20px;
+}
+
+.streak-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.streak-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+/* --- Peak hours --- */
+.peak-hours-grid {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 2px;
+    align-items: end;
+    height: 100px;
+    padding-top: var(--space-sm);
+}
+
+.peak-hour-bar {
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    transition: height 0.3s ease;
+    position: relative;
+}
+
+.peak-hour-bar:hover {
+    opacity: 0.8;
+}
+
+.peak-hours-labels {
+    display: grid;
+    grid-template-columns: repeat(24, 1fr);
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.peak-hour-label {
+    font-size: 8px;
+    color: var(--text-tertiary);
+    text-align: center;
+}
+
+/* Tooltip for heatmap / peak hours */
+.analytics-tooltip {
+    position: absolute;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    font-size: 11px;
+    color: var(--text-primary);
+    pointer-events: none;
+    z-index: 100;
+    white-space: nowrap;
+}
