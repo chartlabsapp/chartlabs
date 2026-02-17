@@ -252,3 +252,115 @@
     color: #fff;
     box-shadow: var(--shadow-sm);
 }
+
+/* --- Auth Form --- */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    max-width: 360px;
+}
+
+.auth-mode-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-xs);
+    width: fit-content;
+}
+
+.auth-mode-btn {
+    padding: 6px 16px;
+    border: none;
+    background: none;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.auth-mode-btn.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+}
+
+.auth-error {
+    font-size: 12px;
+    color: var(--red);
+    padding: 6px 10px;
+    background: color-mix(in srgb, var(--red) 10%, transparent);
+    border-radius: var(--radius-md);
+}
+
+.auth-signed-in {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+}
+
+.auth-user-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.auth-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--accent), #7c4dff);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.auth-user-email {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+/* --- Ko-fi Support --- */
+.support-section p {
+    margin-bottom: var(--space-md);
+}
+
+.btn-kofi {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 10px 20px;
+    background: #ff5e5b;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all var(--transition-fast);
+    width: fit-content;
+}
+
+.btn-kofi:hover {
+    background: #e54e4b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px color-mix(in srgb, #ff5e5b 30%, transparent);
+}
+
+.text-red {
+    color: var(--red);
+}

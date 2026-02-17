@@ -12,9 +12,11 @@ import {
     ChevronDown,
     ChevronRight,
     Folder,
-    Hash
+    Hash,
+    LogIn
 } from 'lucide-react';
 import { useStore } from '../../store';
+import { useAuth } from '../../contexts/AuthContext';
 import type { Project, Theme } from '../../types';
 import './Sidebar.css';
 
@@ -27,7 +29,10 @@ const navItems = [
 
 export default function Sidebar() {
     const { state } = useStore();
+    const { user } = useAuth();
     const [expanded, setExpanded] = useState(false);
+
+    const userInitial = user?.email?.charAt(0).toUpperCase() || '?';
 
     return (
         <aside
@@ -70,6 +75,17 @@ export default function Sidebar() {
             </nav>
 
             <div className="sidebar-footer">
+                {user ? (
+                    <NavLink to="/settings" className="sidebar-user-badge" title={user.email || 'Account'}>
+                        <div className="sidebar-avatar">{userInitial}</div>
+                        {expanded && <span className="sidebar-label sidebar-user-email">{user.email}</span>}
+                    </NavLink>
+                ) : (
+                    <NavLink to="/settings" className="sidebar-user-badge" title="Sign in">
+                        <LogIn size={18} />
+                        {expanded && <span className="sidebar-label">Sign in</span>}
+                    </NavLink>
+                )}
                 <div className="sidebar-version">
                     {expanded ? 'v1.0 MVP' : 'v1'}
                 </div>

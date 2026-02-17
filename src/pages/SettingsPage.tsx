@@ -3,9 +3,10 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     FolderOpen, Download, Upload, Trash2, HardDrive, FileSpreadsheet,
-    ArrowLeft, Check, X, Sun, Moon
+    ArrowLeft, Check, X, Sun, Moon, LogIn, LogOut, Heart, Coffee, ExternalLink
 } from 'lucide-react';
 import { useStore, useAnalytics } from '../store';
+import { useAuth } from '../contexts/AuthContext';
 import { exportAsZip, importFromZip } from '../lib/fileSystem';
 import { convertTradesToCSV, convertAnalyticsToCSV, downloadCSV } from '../lib/exportUtils';
 import EditableChipList from '../components/ui/EditableChipList';
@@ -14,6 +15,7 @@ import './SettingsPage.css';
 export default function SettingsPage() {
     const navigate = useNavigate();
     const { state, activeDirectoryHandle, addFolder, removeFolder, setActiveFolder, addProject, deleteProject, updateConfig } = useStore();
+    const { user, signIn, signUp, signOut } = useAuth();
     const { config, projects, charts, storageFolders, activeFolderId } = state;
 
     const [newProjectName, setNewProjectName] = useState('');
@@ -23,6 +25,26 @@ export default function SettingsPage() {
         () => (document.documentElement.getAttribute('data-theme') as 'dark' | 'light') || 'dark'
     );
     const analytics = useAnalytics();
+
+    // Auth form state
+    const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+    const [authEmail, setAuthEmail] = useState('');
+    const [authPassword, setAuthPassword] = useState('');
+    const [authError, setAuthError] = useState<string | null>(null);
+    const [authSubmitting, setAuthSubmitting] = useState(false);
+
+    const handleAuth = async () => {
+        setAuthError(null);
+        setAuthSubmitting(true);
+        const fn = authMode === 'login' ? signIn : signUp;
+        const { error } = await fn(authEmail, authPassword);
+        if (error) setAuthError(error);
+        else {
+            setAuthEmail('');
+            setAuthPassword('');
+        }
+        setAuthSubmitting(false);
+    };
 
     const toggleTheme = () => {
         const next = theme === 'dark' ? 'light' : 'dark';
@@ -112,6 +134,93 @@ export default function SettingsPage() {
                 </div>
             </div>
             <h2 className="settings-title">Settings</h2>
+
+            {/* Account */}
+            <div className="card settings-section">
+                <div className="settings-section-header">
+                    <LogIn size={18} />
+                    <h3>Account</h3>
+                </div>
+                {user ? (
+                    <div className="auth-signed-in">
+                        <div className="auth-user-info">
+                            <div className="auth-avatar">
+                                {user.email?.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div className="auth-user-email">{user.email}</div>
+                                <div className="text-secondary text-xs">Signed in</div>
+                            </div>
+                        </div>
+                        <button className="btn btn-ghost" onClick={signOut}>
+                            <LogOut size={14} /> Sign Out
+                        </button>
+                    </div>
+                ) : (
+                    <div className="auth-form">
+                        <p className="text-secondary" style={{ marginBottom: 12 }}>
+                            Sign in to sync your settings and data across devices.
+                        </p>
+                        <div className="auth-mode-toggle">
+                            <button
+                                className={`auth-mode-btn ${authMode === 'login' ? 'active' : ''}`}
+                                onClick={() => { setAuthMode('login'); setAuthError(null); }}
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                className={`auth-mode-btn ${authMode === 'signup' ? 'active' : ''}`}
+                                onClick={() => { setAuthMode('signup'); setAuthError(null); }}
+                            >
+                                Create Account
+                            </button>
+                        </div>
+                        <input
+                            className="input"
+                            type="email"
+                            placeholder="Email"
+                            value={authEmail}
+                            onChange={(e) => setAuthEmail(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
+                        />
+                        <input
+                            className="input"
+                            type="password"
+                            placeholder="Password"
+                            value={authPassword}
+                            onChange={(e) => setAuthPassword(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
+                        />
+                        {authError && <div className="auth-error">{authError}</div>}
+                        <button
+                            className="btn btn-primary"
+                            onClick={handleAuth}
+                            disabled={authSubmitting || !authEmail || !authPassword}
+                        >
+                            {authSubmitting ? 'Please wait...' : authMode === 'login' ? 'Sign In' : 'Create Account'}
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Support */}
+            <div className="card settings-section support-section">
+                <div className="settings-section-header">
+                    <Heart size={18} className="text-red" />
+                    <h3>Support ChartLabs</h3>
+                </div>
+                <p className="text-secondary">
+                    ChartLabs is free to use. If you find it helpful, consider buying me a coffee to support ongoing development!
+                </p>
+                <a
+                    href="https://ko-fi.com/chartlabs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-kofi"
+                >
+                    <Coffee size={16} /> Support on Ko-fi <ExternalLink size={12} />
+                </a>
+            </div>
 
             {/* Appearance */}
             <div className="card settings-section">
