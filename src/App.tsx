@@ -3,6 +3,7 @@
 // ============================================
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { useAuth } from './contexts/AuthContext';
 import Layout from './components/layout/Layout';
 import GalleryPage from './pages/GalleryPage';
@@ -31,6 +32,7 @@ export default function App() {
         <Routes>
           <Route path="*" element={<LandingPage />} />
         </Routes>
+        <Analytics />
       </BrowserRouter>
     );
   }
@@ -48,6 +50,7 @@ export default function App() {
           <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Routes>
+      <Analytics />
     </BrowserRouter>
   );
 }
