@@ -19,7 +19,7 @@ export const FAQ_DATA: FAQItem[] = [
     {
         category: "Privacy & Data",
         question: "Do I need an account?",
-        answer: "An account is optional. It is used only to sync your configuration (symbols, timeframes, filename templates) and high-level analytics across devices. Your actual chart images and detailed trade logs remain strictly local."
+        answer: "Yes, an account is required to access the dashboard, workspace, and analytics. This allows us to securely manage your configuration (symbols, timeframes, filename templates) and high-level analytics data. However, your actual chart images remain stored strictly on your local machine."
     },
     {
         category: "Storage & Folders",
