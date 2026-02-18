@@ -152,7 +152,7 @@ export default function SettingsPage() {
                                 <div className="text-secondary text-xs">Signed in</div>
                             </div>
                         </div>
-                        <button className="btn btn-ghost" onClick={signOut}>
+                        <button className="btn btn-ghost auth-signout-btn" onClick={signOut}>
                             <LogOut size={14} /> Sign Out
                         </button>
                     </div>
