@@ -1,0 +1,136 @@
+.user-guide-section {
+    padding: 40px 0;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.guide-header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.guide-header-icon {
+    width: 40px;
+    height: 40px;
+    color: var(--primary);
+    margin-bottom: 16px;
+    opacity: 0.8;
+}
+
+.guide-header h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.guide-header p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.guide-main-section {
+    margin-bottom: 60px;
+}
+
+.section-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-paragraph {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 1.05rem;
+    margin-bottom: 24px;
+}
+
+.subsections-list {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.guide-subsection {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    transition: border-color 0.2s ease;
+}
+
+.guide-subsection:hover {
+    border-color: var(--primary-glow);
+}
+
+.subsection-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+}
+
+.subsection-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.content-line {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.bullet-line,
+.number-line {
+    display: flex;
+    gap: 12px;
+}
+
+.bullet {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.number {
+    color: var(--primary);
+    font-weight: 700;
+    min-width: 20px;
+}
+
+.section-divider {
+    border: 0;
+    border-top: 1px solid var(--border-color);
+    margin-top: 60px;
+    opacity: 0.5;
+}
+
+.guide-footer {
+    text-align: center;
+    padding: 40px;
+    background: rgba(var(--primary-rgb), 0.05);
+    border-radius: 20px;
+    border: 1px dashed var(--primary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.guide-footer p {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+@media (max-width: 768px) {
+    .user-guide-section {
+        padding: 20px 0;
+    }
+}

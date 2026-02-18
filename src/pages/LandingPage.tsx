@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import {
     BarChart3, Clock, Image, Shield, Zap, FolderOpen
 } from 'lucide-react';
+import FAQSection from '../components/features/FAQSection';
 import './LandingPage.css';
 
 export default function LandingPage() {
@@ -41,6 +42,10 @@ export default function LandingPage() {
         document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const scrollToFAQ = () => {
+        document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
+    };
+
     return (
         <div className="landing-page">
             {/* Nav */}
@@ -48,6 +53,10 @@ export default function LandingPage() {
                 <div className="landing-logo">
                     <div className="landing-logo-icon">CL</div>
                     ChartLabs
+                </div>
+                <div className="landing-nav-links">
+                    <button className="landing-nav-link" onClick={scrollToFAQ}>FAQ</button>
+                    <a href="https://github.com/google-labs-code" target="_blank" rel="noreferrer" className="landing-nav-link">Github</a>
                 </div>
                 <div className="landing-nav-cta">
                     <button className="landing-btn landing-btn-secondary" onClick={scrollToAuth}>
@@ -170,6 +179,11 @@ export default function LandingPage() {
                         )}
                     </div>
                 </div>
+            </section>
+
+            {/* FAQ Section */}
+            <section id="faq-section" className="landing-faq-wrapper">
+                <FAQSection />
             </section>
 
             {/* Footer */}

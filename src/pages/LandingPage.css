@@ -49,6 +49,33 @@
     color: #fff;
 }
 
+.landing-nav-links {
+    display: flex;
+    gap: 24px;
+    margin-right: auto;
+    margin-left: 48px;
+}
+
+.landing-nav-link {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    text-decoration: none;
+}
+
+.landing-nav-link:hover {
+    color: var(--primary);
+}
+
+.landing-faq-wrapper {
+    background: rgba(var(--primary-rgb), 0.02);
+    border-top: 1px solid var(--border-color);
+}
+
 .landing-nav-cta {
     display: flex;
     gap: 12px;

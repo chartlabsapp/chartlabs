@@ -3,13 +3,15 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     FolderOpen, Download, Upload, Trash2, HardDrive, FileSpreadsheet,
-    ArrowLeft, Check, X, Sun, Moon, LogIn, LogOut, Heart, Coffee, ExternalLink
+    ArrowLeft, Check, X, Sun, Moon, LogIn, LogOut, Heart, Coffee, ExternalLink, HelpCircle
 } from 'lucide-react';
 import { useStore, useAnalytics } from '../store';
 import { useAuth } from '../contexts/AuthContext';
 import { exportAsZip, importFromZip } from '../lib/fileSystem';
 import { convertTradesToCSV, convertAnalyticsToCSV, downloadCSV } from '../lib/exportUtils';
 import EditableChipList from '../components/ui/EditableChipList';
+import FAQSection from '../components/features/FAQSection';
+import UserGuideSection from '../components/features/UserGuideSection';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
@@ -32,6 +34,8 @@ export default function SettingsPage() {
     const [authPassword, setAuthPassword] = useState('');
     const [authError, setAuthError] = useState<string | null>(null);
     const [authSubmitting, setAuthSubmitting] = useState(false);
+
+    const [activeHelpTab, setActiveHelpTab] = useState<'faq' | 'guide'>('faq');
 
     const handleAuth = async () => {
         setAuthError(null);
@@ -437,6 +441,31 @@ export default function SettingsPage() {
                         .replace('{outcome}', 'win')
                         .replace('{project}', 'Main')
                         .replace('{theme}', 'Setup-A')}.png</code>
+                </div>
+            </div>
+
+            {/* Help & Support */}
+            <div className="card settings-section help-support-section">
+                <div className="settings-section-header">
+                    <HelpCircle size={18} />
+                    <h3>Help & Documentation</h3>
+                </div>
+                <div className="help-tabs">
+                    <button
+                        className={`help-tab-btn ${activeHelpTab === 'faq' ? 'active' : ''}`}
+                        onClick={() => setActiveHelpTab('faq')}
+                    >
+                        FAQ
+                    </button>
+                    <button
+                        className={`help-tab-btn ${activeHelpTab === 'guide' ? 'active' : ''}`}
+                        onClick={() => setActiveHelpTab('guide')}
+                    >
+                        User Guide
+                    </button>
+                </div>
+                <div className="help-content-wrapper">
+                    {activeHelpTab === 'faq' ? <FAQSection /> : <UserGuideSection />}
                 </div>
             </div>
         </div>
