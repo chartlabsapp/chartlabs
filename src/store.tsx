@@ -253,15 +253,27 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         dispatch({ type: 'REMOVE_FOLDER', payload: id });
         const newFolders = state.storageFolders.filter(f => f.id !== id);
         await saveHandles(newFolders);
+
+        // Update active folder ID in localStorage if removed
+        if (state.activeFolderId === id) {
+            const nextActiveId = newFolders.length > 0 ? newFolders[0].id : null;
+            if (nextActiveId) {
+                localStorage.setItem('btpro_activeFolderId', nextActiveId);
+            } else {
+                localStorage.removeItem('btpro_activeFolderId');
+            }
+        }
+
         // If no folders remain, clear the localStorage hint and DB
         if (newFolders.length === 0) {
             localStorage.removeItem('btpro_hasFolder');
             await clearHandles();
         }
-    }, [state.storageFolders]);
+    }, [state.storageFolders, state.activeFolderId]);
 
     const setActiveFolderAction = useCallback((id: string) => {
         dispatch({ type: 'SET_ACTIVE_FOLDER', payload: id });
+        localStorage.setItem('btpro_activeFolderId', id);
     }, []);
 
     const loadFromDisk = useCallback(async (dir: FileSystemDirectoryHandle) => {
@@ -351,11 +363,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             }
 
             if (folders.length > 0) {
+                const savedActiveId = localStorage.getItem('btpro_activeFolderId');
+                const activeId = (savedActiveId && folders.find(f => f.id === savedActiveId))
+                    ? savedActiveId
+                    : folders[0].id;
+
                 dispatch({
                     type: 'SET_STATE',
                     payload: {
                         storageFolders: folders,
-                        activeFolderId: folders[0].id
+                        activeFolderId: activeId
                     }
                 });
                 // Note: loading from disk happens via useEffect on activeDirectoryHandle
@@ -366,6 +383,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
         dispatch({ type: 'SET_STATE', payload: { initialized: true } });
     }, []);
+
+    // Initialize app on mount
+    useEffect(() => {
+        initializeApp();
+    }, [initializeApp]);
 
 
     // When active folder changes, load data from it
