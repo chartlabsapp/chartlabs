@@ -14,7 +14,7 @@ import './SettingsPage.css';
 
 export default function SettingsPage() {
     const navigate = useNavigate();
-    const { state, activeDirectoryHandle, addFolder, removeFolder, setActiveFolder, addProject, deleteProject, updateConfig } = useStore();
+    const { state, activeDirectoryHandle, addFolder, removeFolder, setActiveFolder, addProject, deleteProject, updateConfig, reconnectFolder } = useStore();
     const { user, signIn, signUp, signOut } = useAuth();
     const { config, projects, charts, storageFolders, activeFolderId } = state;
 
@@ -258,21 +258,37 @@ export default function SettingsPage() {
                         {storageFolders.map((folder) => (
                             <div
                                 key={folder.id}
-                                className={`folder-item ${folder.id === activeFolderId ? 'active' : ''}`}
-                                onClick={() => setActiveFolder(folder.id)}
+                                className={`folder-item ${folder.id === activeFolderId ? 'active' : ''} ${folder.isConnected === false ? 'disconnected' : ''}`}
+                                onClick={() => folder.isConnected !== false && setActiveFolder(folder.id)}
                             >
                                 <FolderOpen size={16} className="folder-icon" />
-                                <span className="folder-name">{folder.name}</span>
-                                {folder.id === activeFolderId && (
+                                <div className="folder-info">
+                                    <span className="folder-name">{folder.name}</span>
+                                    {folder.isConnected === false && (
+                                        <span className="folder-status-badge disconnected">Disconnected</span>
+                                    )}
+                                </div>
+                                {folder.id === activeFolderId && folder.isConnected !== false && (
                                     <span className="folder-badge">Active</span>
                                 )}
-                                <button
-                                    className="btn btn-icon btn-ghost btn-sm folder-remove"
-                                    onClick={(e) => { e.stopPropagation(); handleRemoveFolder(folder.id); }}
-                                    title="Remove folder"
-                                >
-                                    <X size={14} />
-                                </button>
+
+                                <div className="folder-actions">
+                                    {folder.isConnected === false && (
+                                        <button
+                                            className="btn btn-primary btn-sm"
+                                            onClick={(e) => { e.stopPropagation(); reconnectFolder(folder.id); }}
+                                        >
+                                            Reconnect
+                                        </button>
+                                    )}
+                                    <button
+                                        className="btn btn-icon btn-ghost btn-sm folder-remove"
+                                        onClick={(e) => { e.stopPropagation(); handleRemoveFolder(folder.id); }}
+                                        title="Remove folder"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

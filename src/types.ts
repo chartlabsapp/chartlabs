@@ -58,6 +58,7 @@ export interface StorageFolder {
   id: string;
   name: string;
   handle: FileSystemDirectoryHandle;
+  isConnected?: boolean;
 }
 
 export interface AppConfig {

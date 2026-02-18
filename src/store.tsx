@@ -14,6 +14,7 @@ import {
     deleteChartFiles, generateThumbnail, buildFileName,
     loadAllChartMetadata, pickDirectory
 } from './lib/fileSystem';
+import { saveHandles, loadHandles, clearHandles } from './lib/handleStore';
 
 // --- Actions ---
 type Action =
@@ -174,6 +175,7 @@ interface StoreContextType {
     addFolder: () => Promise<StorageFolder | null>;
     removeFolder: (id: string) => void;
     setActiveFolder: (id: string) => void;
+    reconnectFolder: (id: string) => Promise<boolean>;
     addChart: (imageBlob: Blob, metadata: Omit<Chart, 'id' | 'imageFileName' | 'thumbnailDataUrl' | 'createdAt' | 'updatedAt'>) => Promise<Chart>;
     addSecondaryImage: (id: string, imageBlob: Blob) => Promise<string>;
     updateChart: (id: string, updates: Partial<Chart>) => void;
@@ -238,37 +240,28 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             };
             dispatch({ type: 'ADD_FOLDER', payload: folder });
             localStorage.setItem('btpro_hasFolder', 'true');
+            // Persist handle list to IndexedDB
+            const updatedFolders = [...state.storageFolders, folder];
+            await saveHandles(updatedFolders);
             return folder;
         } catch {
             return null;
         }
-    }, []);
+    }, [state.storageFolders]);
 
-    const removeFolderAction = useCallback((id: string) => {
+    const removeFolderAction = useCallback(async (id: string) => {
         dispatch({ type: 'REMOVE_FOLDER', payload: id });
-        // If no folders remain, clear the localStorage hint
-        if (state.storageFolders.length <= 1) {
+        const newFolders = state.storageFolders.filter(f => f.id !== id);
+        await saveHandles(newFolders);
+        // If no folders remain, clear the localStorage hint and DB
+        if (newFolders.length === 0) {
             localStorage.removeItem('btpro_hasFolder');
+            await clearHandles();
         }
-    }, [state.storageFolders.length]);
+    }, [state.storageFolders]);
 
     const setActiveFolderAction = useCallback((id: string) => {
         dispatch({ type: 'SET_ACTIVE_FOLDER', payload: id });
-    }, []);
-
-    const initializeApp = useCallback(async () => {
-        // Try to restore directory handle  
-        // File System Access API doesn't persist handles across sessions natively,
-        // so user must re-select folder. We check localStorage for hint.
-        const hasFolder = localStorage.getItem('btpro_hasFolder');
-        if (!hasFolder) {
-            dispatch({ type: 'SET_STATE', payload: { initialized: true } });
-            return;
-        }
-
-        // If folder was previously selected, still need to ask user to re-grant access
-        // We'll handle this in the UI
-        dispatch({ type: 'SET_STATE', payload: { initialized: true } });
     }, []);
 
     const loadFromDisk = useCallback(async (dir: FileSystemDirectoryHandle) => {
@@ -300,6 +293,80 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             },
         });
     }, []);
+
+    const reconnectFolder = useCallback(async (id: string) => {
+        const folder = state.storageFolders.find(f => f.id === id);
+        if (!folder) return false;
+
+        try {
+            const status = await folder.handle.requestPermission({ mode: 'readwrite' });
+            if (status === 'granted') {
+                // Update folder connection state
+                dispatch({
+                    type: 'SET_STATE',
+                    payload: {
+                        storageFolders: state.storageFolders.map(f =>
+                            f.id === id ? { ...f, isConnected: true } : f
+                        )
+                    }
+                });
+                // If this was the active folder, trigger a reload
+                if (id === state.activeFolderId) {
+                    loadFromDisk(folder.handle);
+                }
+                return true;
+            }
+        } catch (err) {
+            console.error('Failed to reconnect folder:', err);
+        }
+        return false;
+    }, [state.storageFolders, state.activeFolderId, loadFromDisk]);
+
+    const initializeApp = useCallback(async () => {
+        // Try to restore directory handles from IndexedDB
+        const hasFolder = localStorage.getItem('btpro_hasFolder');
+        if (!hasFolder) {
+            dispatch({ type: 'SET_STATE', payload: { initialized: true } });
+            return;
+        }
+
+        try {
+            const savedFolders = await loadHandles();
+            if (savedFolders.length === 0) {
+                dispatch({ type: 'SET_STATE', payload: { initialized: true } });
+                return;
+            }
+
+            // In some browsers, we can only re-grant permission on user gesture.
+            // But we can check current status first.
+            const folders: StorageFolder[] = [];
+            for (const f of savedFolders) {
+                // Check if we still have permission
+                const status = await f.handle.queryPermission({ mode: 'readwrite' });
+                if (status === 'granted') {
+                    folders.push({ ...f, isConnected: true });
+                } else {
+                    folders.push({ ...f, isConnected: false });
+                }
+            }
+
+            if (folders.length > 0) {
+                dispatch({
+                    type: 'SET_STATE',
+                    payload: {
+                        storageFolders: folders,
+                        activeFolderId: folders[0].id
+                    }
+                });
+                // Note: loading from disk happens via useEffect on activeDirectoryHandle
+            }
+        } catch (err) {
+            console.error('Failed to restore folders:', err);
+        }
+
+        dispatch({ type: 'SET_STATE', payload: { initialized: true } });
+    }, []);
+
 
     // When active folder changes, load data from it
     useEffect(() => {
@@ -470,6 +537,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
                 addFolder: addFolderAction,
                 removeFolder: removeFolderAction,
                 setActiveFolder: setActiveFolderAction,
+                reconnectFolder,
                 addChart,
                 addSecondaryImage,
                 updateChart,
