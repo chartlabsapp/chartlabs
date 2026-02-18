@@ -18,6 +18,7 @@ export default function LandingPage() {
     const [mode, setMode] = useState<'signin' | 'signup'>('signin');
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -46,6 +47,11 @@ export default function LandingPage() {
         document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const openAuth = (m: 'signin' | 'signup') => {
+        setMode(m);
+        setShowAuthModal(true);
+    };
+
     return (
         <div className="landing-page">
             {/* Nav */}
@@ -56,13 +62,12 @@ export default function LandingPage() {
                 </div>
                 <div className="landing-nav-links">
                     <button className="landing-nav-link" onClick={scrollToFAQ}>FAQ</button>
-                    <a href="https://github.com/google-labs-code" target="_blank" rel="noreferrer" className="landing-nav-link">Github</a>
                 </div>
                 <div className="landing-nav-cta">
-                    <button className="landing-btn landing-btn-secondary" onClick={scrollToAuth}>
+                    <button className="landing-btn landing-btn-secondary" onClick={() => openAuth('signin')}>
                         Sign In
                     </button>
-                    <button className="landing-btn landing-btn-primary" onClick={() => { setMode('signup'); scrollToAuth(); }}>
+                    <button className="landing-btn landing-btn-primary" onClick={() => openAuth('signup')}>
                         Get Started
                     </button>
                 </div>
@@ -86,10 +91,10 @@ export default function LandingPage() {
                     track performance, and discover patterns in your trading strategy.
                 </p>
                 <div className="hero-actions">
-                    <button className="landing-btn landing-btn-primary" onClick={() => { setMode('signup'); scrollToAuth(); }}>
+                    <button className="landing-btn landing-btn-primary" onClick={() => openAuth('signup')}>
                         Create Free Account
                     </button>
-                    <button className="landing-btn landing-btn-secondary" onClick={scrollToAuth}>
+                    <button className="landing-btn landing-btn-secondary" onClick={() => openAuth('signin')}>
                         Sign In
                     </button>
                 </div>
@@ -133,53 +138,56 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Auth Section */}
-            <section className="landing-auth-section" id="auth-section">
-                <div className="landing-auth-card">
-                    <h2>{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h2>
-                    <p>{mode === 'signin' ? 'Sign in to access your workspace' : 'Start your backtesting journey'}</p>
+            {/* Auth Modal */}
+            {showAuthModal && (
+                <div className="landing-modal-overlay" onClick={() => setShowAuthModal(false)}>
+                    <div className="landing-auth-card" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setShowAuthModal(false)}>×</button>
+                        <h2>{mode === 'signin' ? 'Welcome back' : 'Create your account'}</h2>
+                        <p>{mode === 'signin' ? 'Sign in to access your workspace' : 'Start your backtesting journey'}</p>
 
-                    <form className="auth-form" onSubmit={handleSubmit}>
-                        {error && <div className="auth-error">{error}</div>}
+                        <form className="auth-form" onSubmit={handleSubmit}>
+                            {error && <div className="auth-error">{error}</div>}
 
-                        <input
-                            className="auth-input"
-                            type="email"
-                            placeholder="Email address"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                        <input
-                            className="auth-input"
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            minLength={6}
-                        />
+                            <input
+                                className="auth-input"
+                                type="email"
+                                placeholder="Email address"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                            <input
+                                className="auth-input"
+                                type="password"
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                minLength={6}
+                            />
 
-                        <button className="auth-submit" type="submit" disabled={loading}>
-                            {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
-                        </button>
+                            <button className="auth-submit" type="submit" disabled={loading}>
+                                {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+                            </button>
 
-                        <div className="auth-divider">or</div>
+                            <div className="auth-divider">or</div>
 
-                        <button type="button" className="auth-google" onClick={handleGoogle}>
-                            Continue with Google
-                        </button>
-                    </form>
+                            <button type="button" className="auth-google" onClick={handleGoogle}>
+                                Continue with Google
+                            </button>
+                        </form>
 
-                    <div className="auth-toggle">
-                        {mode === 'signin' ? (
-                            <>Don't have an account? <button onClick={() => setMode('signup')}>Sign up</button></>
-                        ) : (
-                            <>Already have an account? <button onClick={() => setMode('signin')}>Sign in</button></>
-                        )}
+                        <div className="auth-toggle">
+                            {mode === 'signin' ? (
+                                <>Don't have an account? <button onClick={() => setMode('signup')}>Sign up</button></>
+                            ) : (
+                                <>Already have an account? <button onClick={() => setMode('signin')}>Sign in</button></>
+                            )}
+                        </div>
                     </div>
                 </div>
-            </section>
+            )}
 
             {/* FAQ Section */}
             <section id="faq-section" className="landing-faq-wrapper">
