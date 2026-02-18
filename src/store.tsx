@@ -341,10 +341,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
                 updatedAt: now,
             };
 
-            // Save to file system
+            // Save to file system in charts/{project}/{theme}/
             if (activeDirectoryHandle) {
-                await saveChartImage(activeDirectoryHandle, imageFileName, imageBlob);
-                await saveChartMetadata(activeDirectoryHandle, imageFileName, chart as unknown as Record<string, unknown>);
+                await saveChartImage(activeDirectoryHandle, imageFileName, imageBlob, projectName, themeName);
+                await saveChartMetadata(activeDirectoryHandle, imageFileName, chart as unknown as Record<string, unknown>, projectName, themeName);
             }
 
             dispatch({ type: 'ADD_CHART', payload: chart });
@@ -358,18 +358,21 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             const chart = state.charts.find(c => c.id === chartId);
             if (!chart || !activeDirectoryHandle) throw new Error('Chart or directory not found');
 
+            const secProjectName = state.projects.find(p => p.id === chart.projectId)?.name || 'General';
+            const secThemeName = state.themes.find(t => t.id === chart.themeId)?.name || 'Global';
+
             const id = uuidv4().slice(0, 8);
             const ext = imageBlob.type.split('/')[1] || 'png';
             const fileName = `${chart.imageFileName.split('.')[0]}_sec_${id}.${ext}`;
 
-            await saveChartImage(activeDirectoryHandle, fileName, imageBlob);
+            await saveChartImage(activeDirectoryHandle, fileName, imageBlob, secProjectName, secThemeName);
 
             const updatedSecondaryImages = [...(chart.secondaryImages || []), fileName];
             dispatch({ type: 'UPDATE_CHART', payload: { id: chartId, updates: { secondaryImages: updatedSecondaryImages } } });
 
             return fileName;
         },
-        [state.charts, activeDirectoryHandle]
+        [state.charts, state.projects, state.themes, activeDirectoryHandle]
     );
 
     const updateChart = useCallback((id: string, updates: Partial<Chart>) => {
@@ -380,14 +383,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         async (id: string) => {
             const chart = state.charts.find((c) => c.id === id);
             if (chart && activeDirectoryHandle) {
-                // Delete main image
-                await deleteChartFiles(activeDirectoryHandle, chart.imageFileName);
-                // Delete secondary images
+                const delProjectName = state.projects.find(p => p.id === chart.projectId)?.name || 'General';
+                const delThemeName = state.themes.find(t => t.id === chart.themeId)?.name || 'Global';
+                // Delete main image from charts/{project}/{theme}/
+                await deleteChartFiles(activeDirectoryHandle, chart.imageFileName, delProjectName, delThemeName);
+                // Delete secondary images from same subfolder
                 if (chart.secondaryImages) {
                     for (const fileName of chart.secondaryImages) {
                         try {
-                            const chartsDir = await activeDirectoryHandle.getDirectoryHandle('charts');
-                            await chartsDir.removeEntry(fileName);
+                            await deleteChartFiles(activeDirectoryHandle, fileName, delProjectName, delThemeName);
                         } catch (err) {
                             console.warn(`Failed to delete secondary image ${fileName}:`, err);
                         }
@@ -396,7 +400,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             }
             dispatch({ type: 'DELETE_CHART', payload: id });
         },
-        [state.charts, activeDirectoryHandle]
+        [state.charts, state.projects, state.themes, activeDirectoryHandle]
     );
 
     const addProject = useCallback((name: string, description?: string) => {

@@ -14,6 +14,23 @@ async function getOrCreateSubDir(
     return parent.getDirectoryHandle(name, { create: true });
 }
 
+// Sanitize a name for use as a folder name
+function sanitizeFolderName(name: string): string {
+    return name.replace(/[<>:"/\\|?*]/g, '_').trim() || 'Untitled';
+}
+
+// Resolve charts/{projectName}/{themeName}/ creating dirs as needed
+async function getChartSubDir(
+    dir: FileSystemDirectoryHandle,
+    projectName: string,
+    themeName: string
+): Promise<FileSystemDirectoryHandle> {
+    const chartsDir = await getOrCreateSubDir(dir, 'charts');
+    const projectDir = await getOrCreateSubDir(chartsDir, sanitizeFolderName(projectName));
+    const themeDir = await getOrCreateSubDir(projectDir, sanitizeFolderName(themeName));
+    return themeDir;
+}
+
 // --- Save / Read JSON config files ---
 
 export async function saveJSON(
@@ -74,10 +91,12 @@ export function buildFileName(
 export async function saveChartImage(
     dir: FileSystemDirectoryHandle,
     fileName: string,
-    blob: Blob
+    blob: Blob,
+    projectName: string = 'General',
+    themeName: string = 'Global'
 ): Promise<void> {
-    const chartsDir = await getOrCreateSubDir(dir, 'charts');
-    const handle = await chartsDir.getFileHandle(fileName, { create: true });
+    const targetDir = await getChartSubDir(dir, projectName, themeName);
+    const handle = await targetDir.getFileHandle(fileName, { create: true });
     const writable = await handle.createWritable();
     await writable.write(blob);
     await writable.close();
@@ -86,11 +105,13 @@ export async function saveChartImage(
 export async function saveChartMetadata(
     dir: FileSystemDirectoryHandle,
     imageFileName: string,
-    metadata: Record<string, unknown>
+    metadata: Record<string, unknown>,
+    projectName: string = 'General',
+    themeName: string = 'Global'
 ): Promise<void> {
-    const chartsDir = await getOrCreateSubDir(dir, 'charts');
+    const targetDir = await getChartSubDir(dir, projectName, themeName);
     const jsonName = imageFileName.replace(/\.[^.]+$/, '.json');
-    const handle = await chartsDir.getFileHandle(jsonName, { create: true });
+    const handle = await targetDir.getFileHandle(jsonName, { create: true });
     const writable = await handle.createWritable();
     await writable.write(JSON.stringify(metadata, null, 2));
     await writable.close();
@@ -98,33 +119,61 @@ export async function saveChartMetadata(
 
 export async function readChartImage(
     dir: FileSystemDirectoryHandle,
-    fileName: string
+    fileName: string,
+    projectName: string = 'General',
+    themeName: string = 'Global'
 ): Promise<string | null> {
     try {
-        const chartsDir = await getOrCreateSubDir(dir, 'charts');
-        const handle = await chartsDir.getFileHandle(fileName);
+        const targetDir = await getChartSubDir(dir, projectName, themeName);
+        const handle = await targetDir.getFileHandle(fileName);
         const file = await handle.getFile();
         return URL.createObjectURL(file);
     } catch {
-        return null;
+        // Fallback: try flat charts/ for backward compatibility
+        try {
+            const chartsDir = await getOrCreateSubDir(dir, 'charts');
+            const handle = await chartsDir.getFileHandle(fileName);
+            const file = await handle.getFile();
+            return URL.createObjectURL(file);
+        } catch {
+            return null;
+        }
     }
 }
 
 export async function deleteChartFiles(
     dir: FileSystemDirectoryHandle,
-    imageFileName: string
+    imageFileName: string,
+    projectName: string = 'General',
+    themeName: string = 'Global'
 ): Promise<void> {
-    const chartsDir = await getOrCreateSubDir(dir, 'charts');
+    const targetDir = await getChartSubDir(dir, projectName, themeName);
     try {
-        await chartsDir.removeEntry(imageFileName);
+        await targetDir.removeEntry(imageFileName);
     } catch { /* file might not exist */ }
     try {
         const jsonName = imageFileName.replace(/\.[^.]+$/, '.json');
-        await chartsDir.removeEntry(jsonName);
+        await targetDir.removeEntry(jsonName);
     } catch { /* file might not exist */ }
 }
 
-// --- Load all charts from folder ---
+// --- Load all charts from folder (recursive + backward compat) ---
+
+async function loadJsonFilesFromDir(
+    dirHandle: FileSystemDirectoryHandle
+): Promise<Record<string, unknown>[]> {
+    const results: Record<string, unknown>[] = [];
+    for await (const entry of dirHandle.values()) {
+        if (entry.kind === 'file' && entry.name.endsWith('.json')) {
+            try {
+                const file = await entry.getFile();
+                const text = await file.text();
+                results.push(JSON.parse(text));
+            } catch { /* skip corrupted files */ }
+        }
+    }
+    return results;
+}
 
 export async function loadAllChartMetadata(
     dir: FileSystemDirectoryHandle
@@ -132,14 +181,24 @@ export async function loadAllChartMetadata(
     const chartsDir = await getOrCreateSubDir(dir, 'charts');
     const metadata: Record<string, unknown>[] = [];
 
-    for await (const entry of chartsDir.values()) {
-        if (entry.kind === 'file' && entry.name.endsWith('.json')) {
-            try {
-                const file = await entry.getFile();
-                const text = await file.text();
-                metadata.push(JSON.parse(text));
-            } catch { /* skip corrupted files */ }
-        }
+    // 1. Load flat files in charts/ root (backward compat)
+    const rootFiles = await loadJsonFilesFromDir(chartsDir);
+    metadata.push(...rootFiles);
+
+    // 2. Recursively walk charts/{project}/{theme}/
+    for await (const projectEntry of chartsDir.values()) {
+        if (projectEntry.kind !== 'directory') continue;
+        try {
+            const projectDir = await chartsDir.getDirectoryHandle(projectEntry.name);
+            for await (const themeEntry of projectDir.values()) {
+                if (themeEntry.kind !== 'directory') continue;
+                try {
+                    const themeDir = await projectDir.getDirectoryHandle(themeEntry.name);
+                    const themeFiles = await loadJsonFilesFromDir(themeDir);
+                    metadata.push(...themeFiles);
+                } catch { /* skip inaccessible dirs */ }
+            }
+        } catch { /* skip inaccessible dirs */ }
     }
 
     return metadata;
@@ -170,6 +229,23 @@ export async function generateThumbnail(
 
 // --- Export / Import ---
 
+async function addDirToZip(
+    dirHandle: FileSystemDirectoryHandle,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    zipFolder: any
+): Promise<void> {
+    for await (const entry of dirHandle.values()) {
+        if (entry.kind === 'file') {
+            const file = await entry.getFile();
+            zipFolder.file(entry.name, await file.arrayBuffer());
+        } else if (entry.kind === 'directory') {
+            const subDir = await dirHandle.getDirectoryHandle(entry.name);
+            const subZip = zipFolder.folder(entry.name)!;
+            await addDirToZip(subDir, subZip);
+        }
+    }
+}
+
 export async function exportAsZip(
     dir: FileSystemDirectoryHandle
 ): Promise<Blob> {
@@ -177,7 +253,7 @@ export async function exportAsZip(
     const zip = new JSZip();
 
     // Add root config files
-    for (const name of ['config.json', 'projects.json', 'timer-sessions.json']) {
+    for (const name of ['config.json', 'projects.json', 'themes.json', 'timer-sessions.json', 'charts-index.json']) {
         try {
             const handle = await dir.getFileHandle(name);
             const file = await handle.getFile();
@@ -185,15 +261,10 @@ export async function exportAsZip(
         } catch { /* skip if doesn't exist */ }
     }
 
-    // Add charts folder
+    // Add charts folder (recursive — preserves project/theme structure)
     const chartsDir = await getOrCreateSubDir(dir, 'charts');
     const chartsFolder = zip.folder('charts')!;
-    for await (const entry of chartsDir.values()) {
-        if (entry.kind === 'file') {
-            const file = await entry.getFile();
-            chartsFolder.file(entry.name, await file.arrayBuffer());
-        }
-    }
+    await addDirToZip(chartsDir, chartsFolder);
 
     return zip.generateAsync({ type: 'blob' });
 }
@@ -211,9 +282,15 @@ export async function importFromZip(
         const data = await entry.async('arraybuffer');
 
         if (path.startsWith('charts/')) {
-            const chartsDir = await getOrCreateSubDir(dir, 'charts');
-            const fileName = path.replace('charts/', '');
-            const handle = await chartsDir.getFileHandle(fileName, { create: true });
+            // Recreate nested structure: charts/Project/Theme/file.ext
+            const parts = path.split('/').filter(Boolean); // ['charts', 'Project', 'Theme', 'file.ext']
+            let currentDir = dir;
+            // Walk through all path segments except the file name
+            for (let i = 0; i < parts.length - 1; i++) {
+                currentDir = await getOrCreateSubDir(currentDir, parts[i]);
+            }
+            const fileName = parts[parts.length - 1];
+            const handle = await currentDir.getFileHandle(fileName, { create: true });
             const writable = await handle.createWritable();
             await writable.write(data);
             await writable.close();

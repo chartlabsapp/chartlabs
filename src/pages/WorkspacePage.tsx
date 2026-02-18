@@ -5,7 +5,7 @@ import {
     Trash2, ChevronDown, ChevronRight, Plus, X, Save, ArrowLeft
 } from 'lucide-react';
 import { useStore } from '../store';
-import { readChartImage } from '../lib/fileSystem';
+import { readChartImage, deleteChartFiles } from '../lib/fileSystem';
 import './WorkspacePage.css';
 
 
@@ -71,27 +71,31 @@ export default function WorkspacePage() {
     useEffect(() => {
         if (chart && activeDirectoryHandle) {
             const fileToLoad = activeImageFile || chart.imageFileName;
-            readChartImage(activeDirectoryHandle, fileToLoad).then((url) => {
+            const pName = projects.find(p => p.id === chart.projectId)?.name || 'General';
+            const tName = themes.find(t => t.id === chart.themeId)?.name || 'Global';
+            readChartImage(activeDirectoryHandle, fileToLoad, pName, tName).then((url) => {
                 if (url) setImageUrl(url);
                 else if (!activeImageFile && chart.thumbnailDataUrl) setImageUrl(chart.thumbnailDataUrl);
             });
         } else if (!activeImageFile && chart?.thumbnailDataUrl) {
             setImageUrl(chart.thumbnailDataUrl);
         }
-    }, [chart, activeDirectoryHandle, activeImageFile]);
+    }, [chart, activeDirectoryHandle, activeImageFile, projects, themes]);
 
     // Preload thumbnails for secondary images
     useEffect(() => {
         if (chart?.secondaryImages && activeDirectoryHandle) {
+            const pName = projects.find(p => p.id === chart.projectId)?.name || 'General';
+            const tName = themes.find(t => t.id === chart.themeId)?.name || 'Global';
             chart.secondaryImages.forEach(file => {
                 if (!secondaryPreviews[file]) {
-                    readChartImage(activeDirectoryHandle!, file).then(url => {
+                    readChartImage(activeDirectoryHandle!, file, pName, tName).then(url => {
                         if (url) setSecondaryPreviews(prev => ({ ...prev, [file]: url }));
                     });
                 }
             });
         }
-    }, [chart?.secondaryImages, activeDirectoryHandle]);
+    }, [chart?.secondaryImages, activeDirectoryHandle, projects, themes]);
 
 
 
@@ -133,8 +137,9 @@ export default function WorkspacePage() {
         if (!chart || !activeDirectoryHandle) return;
         if (confirm('Delete this screenshot?')) {
             try {
-                const chartsDir = await activeDirectoryHandle.getDirectoryHandle('charts');
-                await chartsDir.removeEntry(fileName);
+                const pName = projects.find(p => p.id === chart.projectId)?.name || 'General';
+                const tName = themes.find(t => t.id === chart.themeId)?.name || 'Global';
+                await deleteChartFiles(activeDirectoryHandle, fileName, pName, tName);
                 const updated = chart.secondaryImages?.filter(f => f !== fileName) || [];
                 updateChart(chart.id, { secondaryImages: updated });
                 if (activeImageFile === fileName) setActiveImageFile(null);
