@@ -39,9 +39,6 @@ export default function LandingPage() {
         if (result.error) setError(result.error);
     };
 
-    const scrollToAuth = () => {
-        document.getElementById('auth-section')?.scrollIntoView({ behavior: 'smooth' });
-    };
 
     const scrollToFAQ = () => {
         document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
