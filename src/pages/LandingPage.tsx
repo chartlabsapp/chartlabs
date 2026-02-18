@@ -19,6 +19,7 @@ export default function LandingPage() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const [showAuthModal, setShowAuthModal] = useState(false);
+    const [showFAQModal, setShowFAQModal] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -40,8 +41,8 @@ export default function LandingPage() {
     };
 
 
-    const scrollToFAQ = () => {
-        document.getElementById('faq-section')?.scrollIntoView({ behavior: 'smooth' });
+    const openFAQ = () => {
+        setShowFAQModal(true);
     };
 
     const openAuth = (m: 'signin' | 'signup') => {
@@ -58,7 +59,7 @@ export default function LandingPage() {
                     ChartLabs
                 </div>
                 <div className="landing-nav-links">
-                    <button className="landing-nav-link" onClick={scrollToFAQ}>FAQ</button>
+                    <button className="landing-nav-link" onClick={openFAQ}>FAQ</button>
                 </div>
                 <div className="landing-nav-cta">
                     <button className="landing-btn landing-btn-secondary" onClick={() => openAuth('signin')}>
@@ -186,10 +187,15 @@ export default function LandingPage() {
                 </div>
             )}
 
-            {/* FAQ Section */}
-            <section id="faq-section" className="landing-faq-wrapper">
-                <FAQSection />
-            </section>
+            {/* FAQ Modal */}
+            {showFAQModal && (
+                <div className="landing-modal-overlay" onClick={() => setShowFAQModal(false)}>
+                    <div className="landing-modal-card faq-modal" onClick={e => e.stopPropagation()}>
+                        <button className="modal-close" onClick={() => setShowFAQModal(false)}>×</button>
+                        <FAQSection />
+                    </div>
+                </div>
+            )}
 
             {/* Footer */}
             <footer className="landing-footer">
