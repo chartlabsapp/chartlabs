@@ -213,10 +213,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             await saveJSON(dir, 'timer-sessions.json', state.timerSessions);
             // Charts are saved individually via addChart, not in batch
             // But we also save a charts-index for quick loading
-            const index = state.charts.map(({ thumbnailDataUrl, ...rest }) => ({
-                ...rest,
-                secondaryImages: rest.secondaryImages || []
-            }));
+            const index = state.charts;
             await saveJSON(dir, 'charts-index.json', index);
         } catch (err) {
             console.error('Failed to persist data:', err);
@@ -283,9 +280,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
         const timerSessions = await readJSON<TimerSession[]>(dir, 'timer-sessions.json');
         const chartsIndex = await readJSON<Chart[]>(dir, 'charts-index.json');
 
-        // Also check individual chart metadata
+        // Also check individual chart metadata if index is missing thumbnails
         let charts = chartsIndex || [];
-        if (!chartsIndex || chartsIndex.length === 0) {
+        const needsRecovery = charts.length > 0 && charts.every(c => !c.thumbnailDataUrl);
+
+        if (!chartsIndex || chartsIndex.length === 0 || needsRecovery) {
             const metaFiles = await loadAllChartMetadata(dir);
             charts = metaFiles as unknown as Chart[];
         }
